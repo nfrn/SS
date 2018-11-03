@@ -1,5 +1,9 @@
 import json
 
+assBasic = ['ret', 'leave', 'nop', 'push', 'pop', 'call', 'mov', 'lea', 'sub', 'add']
+assAdvc = ['cmp', 'test', 'je', 'jmp', 'jne']
+funDang = ['gets', 'strcpy', 'strcat', 'sprintf', 'scanf', 'fscanf', 'fgets', 'strncpy', 'strncat', 'snprintf', 'read']
+
 class Variable:
     def __init__(self, bytes, type, name, address):
         self.bytes = bytes
@@ -37,6 +41,35 @@ class Program:
     def addFunction(self,function):
         self.extraFunction.append(function)
 
+class Stack:
+    def __init__(self):
+        self.values = []
+
+class Vulnerability:
+
+    def __init__(self,name):
+        self.name = name
+
+    def setVar(self,var):
+        self.var = var
+
+    def setMainFunction(self,function):
+        self.function = function
+
+    def setAddress(self,address):
+        self.address= address
+
+    def setMalFunction(self,function):
+        self.malfun = function
+
+    def toJSON( self ):
+        output = {}
+        output['vulnerability'] = self.name
+        output['overflow_var'] = self.var
+        output['vuln_function'] = self.function
+        output['address'] = self.address
+        output['fnname'] = self.malfun
+        return output
 
 def processFunction(data,name):
     function = Function(name)
@@ -72,8 +105,15 @@ def processData(rawData):
 
     return program
 
+def createStack():
+    stack = Stack()
+    return stack
 
-if __name__ == "__main__":
+def checkVulnerability(program,stack):
+    vulnerability = Vulnerability()
+    return vulnerability
+
+def test():
     testData = ['public_tests/test01.json','public_tests/test02.json',
                 'public_tests/test03.json','public_tests/test04.json',
                 'public_tests/test05.json','public_tests/test11.json',
@@ -85,4 +125,17 @@ if __name__ == "__main__":
         with open(test,'r') as file:
             rawData =json.load(file)
             program = processData(rawData)
+
+            
+if __name__ == "__main__":
+    with open('public_tests/test02.json', 'r') as file:
+        rawData = json.load(file)
+        program = processData(rawData)
+        stack = createStack()
+
+        vulnerability = checkVulnerability(program, stack)
+        outputdata =  vulnerability.toJSON()
+        with open('public_tests/test02.output.json', 'w') as outfile:
+            json.dump(outputdata, outfile)
+
 
