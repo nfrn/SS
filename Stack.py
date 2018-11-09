@@ -2,19 +2,13 @@ from collections import OrderedDict
 
 
 class Stack:
-    def __init__(self, program):
+    def __init__(self):
         self.fullstack =[]
 
     def process_function_stack(self,program,function):
-        
-        for var in program.main.:
-            key, value = var.toStackEntry()
-            self.stack_values[key] = value
-
-        for func in program.extra_functions:
-            for var in func.variables:
-                key, value = var.toStackEntry()
-                self.stack_values[key] = value
+        if function == 'main':
+            for instruction in program.main.instructions:
+                print(instruction)
 
     def __str__(self):
         ordered_vals = OrderedDict(
@@ -25,8 +19,3 @@ class Stack:
                 val[1]) + "\n"
 
         return ret_str
-
-
-def createStack(program):
-    stack = Stack(program)
-    return stack

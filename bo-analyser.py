@@ -53,7 +53,7 @@ if __name__ == "__main__":
         rawData = json.load(file)
         program = processData(rawData)
 
-        stack = createStack()
+        stack = Stack()
         stack = stack.process_function_stack(program , 'main')
 
         vulnerability = checkVulnerability(program, stack)
