@@ -4,10 +4,6 @@ from Program import *
 from Stack import *
 from Vulnerability import *
 
-assBasic = ['ret', 'leave', 'nop', 'push', 'pop', 'call', 'mov', 'lea', 'sub', 'add']
-assAdvc = ['cmp', 'test', 'je', 'jmp', 'jne']
-funDang = ['gets', 'strcpy', 'strcat', 'sprintf', 'scanf', 'fscanf', 'fgets', 'strncpy', 'strncat', 'snprintf', 'read']
-
 def processFunction(data,name):
     function = Function(name)
 

@@ -26,10 +26,14 @@ class Instruction:
         self.args = {}
 
     def addArgument(self,key,value):
-        self.args[key]=value
+        if key == 'fnname':
+            self.args[key] = value[1:-5]
+        else:
+            self.args[key]=value
 
     def __str__(self):
-        return self.op + " " + self.pos + " " + self.address + " " + self.args
+        return self.op + " " + str(self.pos) + " " + self.address + " " + \
+               str(self.args)
 
 class Function():
     def __init__(self,name):
