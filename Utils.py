@@ -32,8 +32,8 @@ def test():
             #program = processData(rawData)
 
 
-def eval_function(stack,fname):
+def eval_function(stack,fname,function):
     if fname == 'gets':
         destination = stack.store_reg['DI'][1:-1]
-        stack.fullstack[0][destination] = "Unlimited"
+        stack.fullstack[0][destination] = "Unlimited gets " + function
 

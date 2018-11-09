@@ -1,7 +1,7 @@
 import json
-
+import os
 from Program import *
-from Stack import *
+from State import *
 from Vulnerability import *
 
 def processFunction(data,name):
@@ -38,9 +38,6 @@ def processData(rawData):
 
     return program
 
-def checkVulnerability(program,stack):
-    vulnerability = Vulnerability( Vulnerability.RBP_OVERFLOW, "func1", "123456","strcopy?", "buf")
-    return vulnerability
 
 if __name__ == "__main__":
     test = '01_gets_all'
@@ -49,16 +46,12 @@ if __name__ == "__main__":
         rawData = json.load(file)
         program = processData(rawData)
 
-        stack = Stack()
+        stack = State()
         stack = stack.process_function_stack(program , 'main')
 
-        vulnerability = checkVulnerability(program, stack)
+        vulnerability = checkVulnerability(stack,program)
         outputdata =  vulnerability.toJSON()
 
-
-
-
-'''        
         test_dir = "prog_outs"
         if not os.path.exists(test_dir):
             os.mkdir(test_dir)
@@ -66,5 +59,3 @@ if __name__ == "__main__":
         #write to folder 'test' then compare ourselves
         with open(test_dir + '/test'+ test +'.output.json', 'w') as outfile:
             json.dump(outputdata, outfile)
-
-'''
