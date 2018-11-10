@@ -35,5 +35,12 @@ def test():
 def eval_function(stack,fname,function):
     if fname == 'gets':
         destination = stack.store_reg['DI'][1:-1]
-        stack.fullstack[0][destination] = "Unlimited gets " + function
+        #Saves gets and function name to help in output later
+        stack.sub_stack[destination] = "Unlimited gets " + function
+
+    elif fname == 'fgets':
+        destination = stack.store_reg['DI'][1:-1]
+        size = stack.store_reg['SI']
+        stack.sub_stack[destination] = size + ' fgets ' + function
+
 

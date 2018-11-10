@@ -40,7 +40,7 @@ def processData(rawData):
 
 
 if __name__ == "__main__":
-    test = '01_gets_all'
+    test = '02_fgets_strcpy_ok'
 
     with open('public_basic_tests/'+ test + '.json', 'r') as file:
         rawData = json.load(file)
@@ -49,13 +49,15 @@ if __name__ == "__main__":
         stack = State()
         stack = stack.process_function_stack(program , 'main')
 
-        vulnerability = checkVulnerability(stack,program)
-        outputdata =  vulnerability.toJSON()
+        vulnerabilities = checkVulnerability(stack,program)
+        outputdata = []
+        for vuln in vulnerabilities:
+            outputdata.append(vuln.toJSON())
 
         test_dir = "prog_outs"
         if not os.path.exists(test_dir):
             os.mkdir(test_dir)
 
         #write to folder 'test' then compare ourselves
-        with open(test_dir + '/test'+ test +'.output.json', 'w') as outfile:
-            json.dump(outputdata, outfile)
+        with open(test_dir + '/'+ test +'.output.json', 'w') as outfile:
+            json.dump(outputdata, outfile, indent='\t', separators=(',', ': '))
