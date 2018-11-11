@@ -1,3 +1,5 @@
+from Utils import trans_addr
+
 class Variable:
     def __init__(self, bytes, type, name, address):
         self.bytes = bytes
@@ -6,12 +8,7 @@ class Variable:
 
         #address relative to ebp
         #always put in format 0xYY
-        #add = address.split("0x")
-        #rel_addr = add[1]
-        #if(len(rel_addr) <2):
-        #   rel_addr = "0" + rel_addr
-        #self.address = add[0]+"0x"+rel_addr
-        self.address = address
+        self.address = trans_addr(address)
 
     def toStackEntry(self):
         return self.address, [self.name, self.bytes]

@@ -13,10 +13,16 @@ arg_reg_order = ['RDI','RSI','RDX','RCX','R8','R9']
 def sum_str_hexes(str1 ,str2):
     return str(hex(str_to_hex(str1) + str_to_hex(str2)))
 
-
 # _str in format "0xYYY..."
 def str_to_hex(_str):
     return int(_str ,16)
+
+def trans_addr(address):
+    add = address.split("0x")
+    rel_addr = add[1]
+    if(len(rel_addr) <2):
+        rel_addr = "0" + rel_addr
+    return add[0]+"0x"+rel_addr
 
 def test():
     testData = ['public_tests/test01.json','public_tests/test02.json',
@@ -35,12 +41,23 @@ def test():
 def eval_function(stack,fname,function):
     if fname == 'gets':
         destination = stack.store_reg['DI'][1:-1]
+        destination = trans_addr(destination)
         #Saves gets and function name to help in output later
-        stack.sub_stack[destination] = "Unlimited gets " + function
+        stack.sub_stack[destination][1] = "Unlimited gets " + function
 
     elif fname == 'fgets':
         destination = stack.store_reg['DI'][1:-1]
+        destination = trans_addr(destination)
         size = stack.store_reg['SI']
-        stack.sub_stack[destination] = size + ' fgets ' + function
+        stack.sub_stack[destination][1] = size + ' fgets ' + function
+
+    elif fname == 'fgets':
+        destination = stack.store_reg['DI'][1:-1]
+        destination = trans_addr(destination)
+        size = stack.store_reg['SI']
+        stack.sub_stack[destination][1] = size + ' fgets ' + function
+
+    elif fname == 'strcpy':
+        pass
 
 
