@@ -105,11 +105,8 @@ class StackEntry(Variable):
 
         self.write_size = 0
 
-        self.vulns = []
-
     def set_write_size(self, write_size, fnn, function_writing):
-        vulns = Vulnerability.check_write(self, write_size, fnn, function_writing)
-        self.vulns.append( vulns )
+        Vulnerability.check_write(self, write_size, fnn, function_writing)
         self.write_size = write_size
 
     def __str__(self):

@@ -40,7 +40,7 @@ def processData(rawData):
 
 
 if __name__ == "__main__":
-    test = '01_gets_all'
+    test = '02_fgets_strcpy_ok'
 
     with open('public_basic_tests/'+ test + '.json', 'r') as file:
         rawData = json.load(file)
