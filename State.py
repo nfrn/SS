@@ -110,4 +110,4 @@ class StackEntry(Variable):
         self.write_size = write_size
 
     def __str__(self):
-        return self.val + " | " + self.descr  + " | " + str(self.bytes)  + " | " + str(self.write_size) + "||" + str(self.vulns)
+        return self.val + " | " + self.descr  + " | " + str(self.bytes)  + " | " + str(self.write_size)
