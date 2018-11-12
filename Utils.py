@@ -38,26 +38,3 @@ def test():
             #program = processData(rawData)
 
 
-def eval_function(stack,fname,function):
-    if fname == 'gets':
-        destination = stack.store_reg['DI'][1:-1]
-        destination = trans_addr(destination)
-        #Saves gets and function name to help in output later
-        stack.sub_stack[destination][1] = "Unlimited gets " + function
-
-    elif fname == 'fgets':
-        destination = stack.store_reg['DI'][1:-1]
-        destination = trans_addr(destination)
-        size = stack.store_reg['SI']
-        stack.sub_stack[destination][1] = size + ' fgets ' + function
-
-    elif fname == 'fgets':
-        destination = stack.store_reg['DI'][1:-1]
-        destination = trans_addr(destination)
-        size = stack.store_reg['SI']
-        stack.sub_stack[destination][1] = size + ' fgets ' + function
-
-    elif fname == 'strcpy':
-        pass
-
-

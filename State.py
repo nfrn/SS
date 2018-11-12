@@ -1,27 +1,31 @@
 from collections import OrderedDict
 from Utils import *
 from tabulate import tabulate
+import Vulnerability
+from Program import Program, Variable
 
 class State:
-    def __init__(self):
+    def __init__(self, pg):
+        self.program = pg
         self.sub_stack={}
+        self.vulns = []
         #self.store_reg = {'AX':0,'BX':0,'CX':0, 'DX':0,'DI':0,'SI':0,'R8':0,'R9':0,'R10':0,'R11':0,'R12':0,'R13':0,'R14':0,'R15':0,'BP':0,'SP':0,'IP':0}
         
         #ordered with func args order
         #self.store_reg = ['RDI','RSI','RDX','RCX','R8','R9']
         self.store_reg = {'DI':0,'SI':0,'DX':0,'CX':0,'AX':0,'BX':0,'R8':0,'R9':0,'R10':0,'R11':0,'R12':0,'R13':0,'R14':0,'R15':0,'BP':0,'SP':0,'IP':0}
 
-    def process_function_stack(self,program,function):
-        self.add_to_stack('rbp+0x08', descr='Return Address')
-        self.add_to_stack('rbp+0x00', descr='Base Pointer')
+    def process_function_stack(self,function):
+        self.add_to_stack("POINTER","RBP",'rbp+0x08', descr='Return Address')
+        self.add_to_stack("POINTER","RET",'rbp+0x00', descr='Base Pointer')
         ##set loval vars in stack
 
         if function == 'main':
-            self.set_local_vars(program, function, main_func=True)
-            for instruction in program.main.instructions:
-                if instruction.pos==2 and instruction.op == 'sub' and instruction.args['dest']=='rsp':
-                    addr = 'rbp-'+ trans_addr(str(instruction.args['value'] + "[INFO]"))
-                    self.add_to_stack(addr,descr = "Main function Stack Delimiter")
+            self.set_local_vars(self.program, function, main_func=True)
+            for instruction in self.program.main.instructions:
+                #if instruction.pos==2 and instruction.op == 'sub' and instruction.args['dest']=='rsp':
+                    #addr = 'rbp-'+ trans_addr(str(instruction.args['value'] + "[INFO]"))
+                    #self.add_to_stack(addr,descr = "Main function Stack Delimiter")
 
                 #mov / lea
                 if instruction.op == 'mov' or instruction.op == 'lea':
@@ -41,7 +45,7 @@ class State:
                     #set val to var
                     elif token[0] in memAlloc.keys() and token[1] == 'PTR':
                         addr = trans_addr(token[2][1:-1])
-                        self.add_to_stack( addr, value=instruction.args['value'])
+                        self.add_to_stack( "","", addr, value=instruction.args['value'])
 
                 #call
                 if instruction.op == 'call':
@@ -50,7 +54,7 @@ class State:
                     #print(self)
                     #input()
                     if fun_name in funDang.keys():
-                        eval_function(self, fun_name, function)
+                        Vulnerability.eval_function(self, fun_name, function)
 
         #print(sub_stack)
         #print(self.store_reg)
@@ -61,16 +65,16 @@ class State:
             addr = var.address
             type = var.type
             name = var.name
-            self.add_to_stack(addr, descr = type.upper() + " " + name)
+            size = var.bytes
+            self.add_to_stack(type, name, addr, descr = type.upper() + " " + name, size=size)
             
-
-    def add_to_stack(self, addr, descr='', value='?'):
+    def add_to_stack(self, type, name, addr, descr='', value='?', size = 8):
         # addrr already set in stack
         if(addr in self.sub_stack.keys()):
             print("stack warning - setting value already set")
-            self.sub_stack[addr][0] = value
+            self.sub_stack[addr].val = value
         else:
-            self.sub_stack[addr]=[value, descr]
+            self.sub_stack[addr]= StackEntry(size, type, name, addr, self, value, descr)
 
     def ordered(self):
         ordered_keys = sorted(self.sub_stack.keys(), reverse=True)
@@ -81,10 +85,32 @@ class State:
             ordered_vals[key] = self.sub_stack[key]
         return ordered_vals
 
+    def add_vulnerability(self, vuln):
+        self.vulns.append(vuln)
+
     def __str__(self):
         ordered_vals = self.ordered()
         ret_str = "\nSTACK (higher addresses on bottom):\n"       
-        ret_str += tabulate(ordered_vals.items(), headers=['Addresses','Value/Description'])
+        ret_str += tabulate(ordered_vals.items(), headers=['Addresses',StackEntry.vals])
         ret_str += "\n\n" + tabulate([self.store_reg.values()], headers=self.store_reg.keys())
         return ret_str
 
+class StackEntry(Variable):
+    vals = "value | descr | size | writen_size"
+    def __init__(self, bytes, type, name, address, stack, value, descr):
+        super().__init__(bytes, type, name, address)
+        self.stack = stack
+        self.val = value
+        self.descr = descr
+
+        self.write_size = 0
+
+        self.vulns = []
+
+    def set_write_size(self, write_size, fnn, function_writing):
+        vulns = Vulnerability.check_write(self, write_size, fnn, function_writing)
+        self.vulns.append( vulns )
+        self.write_size = write_size
+
+    def __str__(self):
+        return self.val + " | " + self.descr  + " | " + str(self.bytes)  + " | " + str(self.write_size) + "||" + str(self.vulns)

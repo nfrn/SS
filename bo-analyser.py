@@ -46,10 +46,11 @@ if __name__ == "__main__":
         rawData = json.load(file)
         program = processData(rawData)
 
-        stack = State()
-        stack = stack.process_function_stack(program , 'main')
+        stack = State(program)
+        stack = stack.process_function_stack('main')
 
-        vulnerabilities = checkVulnerability(stack,program)
+        #vulnerabilities = checkVulnerability(stack)
+        vulnerabilities = stack.vulns
         outputdata = []
         for vuln in vulnerabilities:
             outputdata.append(vuln.toJSON())
@@ -59,5 +60,7 @@ if __name__ == "__main__":
             os.mkdir(test_dir)
 
         #write to folder 'test' then compare ourselves
-        with open(test_dir + '/'+ test +'.output.json', 'w') as outfile:
+        out_file = test_dir + '/'+ test +'.output.json'
+        with open(out_file, 'w') as outfile:
+            print("\ndumping output to: \'" + out_file + "\'")
             json.dump(outputdata, outfile, indent='\t', separators=(',', ': '))
