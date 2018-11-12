@@ -1,4 +1,4 @@
-from collections import OrderedDict
+import collections
 from Utils import *
 from tabulate import tabulate
 import Vulnerability
@@ -16,8 +16,8 @@ class State:
         self.store_reg = {'DI':0,'SI':0,'DX':0,'CX':0,'AX':0,'BX':0,'R8':0,'R9':0,'R10':0,'R11':0,'R12':0,'R13':0,'R14':0,'R15':0,'BP':0,'SP':0,'IP':0}
 
     def process_function_stack(self,function):
-        self.add_to_stack("POINTER","RBP",'rbp+0x08', descr='Return Address')
-        self.add_to_stack("POINTER","RET",'rbp+0x00', descr='Base Pointer')
+        self.add_to_stack("POINTER","RET","rbp+0x08", descr='Return Address')
+        self.add_to_stack("POINTER","RBP","rbp+0x00", descr='Base Pointer')
         ##set loval vars in stack
 
         if function == 'main':
@@ -70,27 +70,23 @@ class State:
             
     def add_to_stack(self, type, name, addr, descr='', value='?', size = 8):
         # addrr already set in stack
+        addr = trans_addr(addr)
         if(addr in self.sub_stack.keys()):
-            print("stack warning - setting value already set")
+            #print("stack warning - setting value already set")
             self.sub_stack[addr].val = value
         else:
             self.sub_stack[addr]= StackEntry(size, type, name, addr, self, value, descr)
 
     def ordered(self):
-        ordered_keys = sorted(self.sub_stack.keys(), reverse=True)
-
-        ordered_vals = dict()
-        for key in ordered_keys:
-            ordered_vals[key] = []
-            ordered_vals[key] = self.sub_stack[key]
-        return ordered_vals
+        ordered = collections.OrderedDict(sorted(self.sub_stack.items(), key = lambda x: int(x[0],16)))
+        return ordered
 
     def add_vulnerability(self, vuln):
         self.vulns.append(vuln)
 
     def __str__(self):
         ordered_vals = self.ordered()
-        ret_str = "\nSTACK (higher addresses on bottom):\n"       
+        ret_str = "\n======== STACK (higher addresses on bottom): ==========\n"       
         ret_str += tabulate(ordered_vals.items(), headers=['Addresses',StackEntry.vals])
         ret_str += "\n\n" + tabulate([self.store_reg.values()], headers=self.store_reg.keys())
         return ret_str
@@ -106,8 +102,8 @@ class StackEntry(Variable):
         self.write_size = 0
 
     def set_write_size(self, write_size, fnn, function_writing):
-        Vulnerability.check_write(self, write_size, fnn, function_writing)
         self.write_size = write_size
+        Vulnerability.check_write(self, write_size, fnn, function_writing)
 
     def __str__(self):
         return self.val + " | " + self.descr  + " | " + str(self.bytes)  + " | " + str(self.write_size)

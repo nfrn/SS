@@ -18,11 +18,13 @@ def str_to_hex(_str):
     return int(_str ,16)
 
 def trans_addr(address):
-    add = address.split("0x")
-    rel_addr = add[1]
-    if(len(rel_addr) <2):
-        rel_addr = "0" + rel_addr
-    return add[0]+"0x"+rel_addr
+    #add = trans_addr1(address)
+    add = address.split("rbp")
+    if len(add) == 2 :
+        rel_addr = add[1]
+    else:
+        rel_addr = add[0]
+    return hex(int(rel_addr,16))
 
 def test():
     testData = ['public_tests/test01.json','public_tests/test02.json',
