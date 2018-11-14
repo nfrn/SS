@@ -91,7 +91,8 @@ if __name__ == "__main__":
     basic_test_input, basic_test_output, advanced_test_input, advanced_test_output = getTestData()
     with open("testResults.txt", 'w') as outfile:
         #First Run Basic Tests
-        for count in range (0, len(basic_test_input)):
+        #len(basic_test_input)
+        for count in range (0, 2):
             current_test = basic_test_input[count]
             current_target = basic_test_output[count]
             with open(current_test, 'r') as file , open(current_target, 'r') as target:
@@ -107,13 +108,19 @@ if __name__ == "__main__":
                 for vuln in vulnerabilities:
                     outputdata.append(vuln.toJSON())
 
-                outputedjson = json.dumps(outputdata, indent='\t', separators=(',', ': '))
                 targetjson = json.load(target)
+                outputedjson = json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))
+                targetedjson = json.dumps(targetjson, indent='\t', sort_keys=True, separators=(',', ': '))
 
-                if json_equals(outputedjson,targetjson):
+
+                if json_equals(outputedjson,targetedjson):
                     outfile.write("[OK] Test: " + current_test + "\n")
+                    print("OK")
                 else:
                     outfile.write("[NO] Test: " + current_test + "\n")
+                    json.dump(outputdata,outfile, indent='\t', separators=(',', ': '))
+                    outfile.write("___________DIF____________ " + "\n")
+                    json.dump(targetjson, outfile, indent='\t', separators=(',', ': '))
 
         # Then advanced Tests
 '''        for count in range(0, len(advanced_test_input)):

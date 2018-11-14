@@ -16,6 +16,7 @@ class State:
         self.store_reg = {'DI':0,'SI':0,'DX':0,'CX':0,'AX':0,'BX':0,'R8':0,'R9':0,'R10':0,'R11':0,'R12':0,'R13':0,'R14':0,'R15':0,'BP':0,'SP':0,'IP':0}
 
     def process_function_stack(self,function):
+        self.add_to_stack("POINTER", "STK", "rbp+0x10", descr='Other Stack Frame', value="STK")
         self.add_to_stack("POINTER","RET","rbp+0x08", descr='Return Address')
         self.add_to_stack("POINTER","RBP","rbp+0x00", descr='Base Pointer')
         ##set loval vars in stack
@@ -71,10 +72,20 @@ class State:
     def add_to_stack(self, type, name, addr, descr='', value='?', size = 8):
         # addrr already set in stack
         addr = trans_addr(addr)
+        print(addr)
         if(addr in self.sub_stack.keys()):
             #print("stack warning - setting value already set")
             self.sub_stack[addr].val = value
+        #EXTRA#
         else:
+            if addr[0] == '-':
+                addr_number = int(addr.split("x",1)[1])
+                if addr_number % 10 != 0:
+                    block_not_full_initialized = ((addr_number // 10) + 1) * 10
+                    addres_block = '-0x' + str(block_not_full_initialized)
+
+                    print(addres_block)
+                    self.sub_stack[addres_block] = StackEntry(size, type, 'block', addres_block, self, 'NI', "BLOCK INVALID")
             self.sub_stack[addr]= StackEntry(size, type, name, addr, self, value, descr)
 
     def ordered(self):

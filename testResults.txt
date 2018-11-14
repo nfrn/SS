@@ -1,0 +1,2 @@
+[OK] Test: public_basic_tests/01_gets_all.json
+[OK] Test: public_basic_tests/02_fgets_strcpy_ok.json
