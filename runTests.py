@@ -66,25 +66,20 @@ def getTestData():
 
     return basic_test_input, basic_test_output,advanced_test_input,advanced_test_output
 
-def json_equals(jsonA, jsonB):
-    if type(jsonA) != type(jsonB):
-        # not equal
-        return False
-    if type(jsonA) == 'dict':
-        if len(jsonA) != len(jsonB):
-            return False
-        for keyA in jsonA:
-            if keyA not in jsonB or not json_equals(jsonA[keyA], jsonB[keyA]):
-                return False
-    elif type(jsonA) == 'list':
-        if len(jsonA) != len(jsonB):
-            return False
-        for itemA, itemB in zip(jsonA, jsonB):
-            if not json_equals(itemA, itemB):
-                return False
-    else:
-        return jsonA == jsonB
 
+def compare(jsonA, jsonB):
+    if len(jsonA) != len(jsonB):
+        return False
+    for object in jsonA:
+        output = False
+        for object2 in jsonB:
+            if object == object2:
+                output = True
+
+        if output == False:
+            return False
+
+    return True
 
 if __name__ == "__main__":
 
@@ -92,7 +87,7 @@ if __name__ == "__main__":
     with open("testResults.txt", 'w') as outfile:
         #First Run Basic Tests
         #len(basic_test_input)
-        for count in range (0, 2):
+        for count in range(0, len(basic_test_input)):
             current_test = basic_test_input[count]
             current_target = basic_test_output[count]
             with open(current_test, 'r') as file , open(current_target, 'r') as target:
@@ -110,17 +105,17 @@ if __name__ == "__main__":
 
                 targetjson = json.load(target)
                 outputedjson = json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))
-                targetedjson = json.dumps(targetjson, indent='\t', sort_keys=True, separators=(',', ': '))
+                targetedjson = json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': '))
 
 
-                if json_equals(outputedjson,targetedjson):
+                if compare(outputedjson,targetedjson):
                     outfile.write("[OK] Test: " + current_test + "\n")
-                    print("OK")
+                    #outfile.write(tabulate([outputedjson,targetedjson]))
+
                 else:
                     outfile.write("[NO] Test: " + current_test + "\n")
-                    json.dump(outputdata,outfile, indent='\t', separators=(',', ': '))
-                    outfile.write("___________DIF____________ " + "\n")
-                    json.dump(targetjson, outfile, indent='\t', separators=(',', ': '))
+                    outfile.write(tabulate([outputedjson,targetedjson])+"\n")
+
 
         # Then advanced Tests
 '''        for count in range(0, len(advanced_test_input)):

@@ -79,7 +79,7 @@ class State:
         #EXTRA#
         else:
             if addr[0] == '-':
-                addr_number = int(addr.split("x",1)[1])
+                addr_number = int(addr.split("x",1)[1],16)
                 if addr_number % 10 != 0:
                     block_not_full_initialized = ((addr_number // 10) + 1) * 10
                     addres_block = '-0x' + str(block_not_full_initialized)
