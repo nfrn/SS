@@ -87,9 +87,9 @@ if __name__ == "__main__":
     with open("testResults.txt", 'w') as outfile:
         #First Run Basic Tests
         #len(basic_test_input)
-        for count in range(0, len(advanced_test_input)):
-            current_test = advanced_test_input[count]
-            current_target = advanced_test_output[count]
+        for count in range(0, len(basic_test_input)):
+            current_test = basic_test_input[count]
+            current_target = basic_test_output[count]
             print(current_test)
             with open(current_test, 'r') as file , open(current_target, 'r') as target:
                 rawData = json.load(file)
@@ -115,7 +115,8 @@ if __name__ == "__main__":
 
                 else:
                     outfile.write("[NO] Test: " + current_test + "\n")
-                    outfile.write(tabulate([outputedjson,targetedjson])+"\n")
-                    #outfile.write(outputedjson = json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))+ "\n")
-                    #outfile.write(targetedjson = json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': ')) + "\n")
+                    #outfile.write(tabulate([outputedjson,targetedjson])+"\n")
+                    outfile.write("OURS:" + json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))+ "\n")
+                    outfile.write("TARGET:" + json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': ')) + "\n")
+                    #break
 
