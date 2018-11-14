@@ -116,4 +116,6 @@ if __name__ == "__main__":
                 else:
                     outfile.write("[NO] Test: " + current_test + "\n")
                     outfile.write(tabulate([outputedjson,targetedjson])+"\n")
+                    #outfile.write(outputedjson = json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))+ "\n")
+                    #outfile.write(targetedjson = json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': ')) + "\n")
 
