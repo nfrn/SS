@@ -72,15 +72,12 @@ class State:
     def add_to_stack(self, type, name, addr, descr='', value='?', size = 8):
         # addrr already set in stack
         addr = trans_addr(addr)
-        print(addr)
         if(addr in self.sub_stack.keys()):
-            #print("stack warning - setting value already set")
             self.sub_stack[addr].val = value
-        #EXTRA#
         else:
             if addr[0] == '-':
                 addr_number = int(addr.split("x",1)[1],16)
-                if addr_number % 10 != 0:
+                if addr_number % 16 != 0:
                     block_not_full_initialized = ((addr_number // 10) + 1) * 10
                     addres_block = '-0x' + str(block_not_full_initialized)
 
