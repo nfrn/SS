@@ -87,9 +87,10 @@ if __name__ == "__main__":
     with open("testResults.txt", 'w') as outfile:
         #First Run Basic Tests
         #len(basic_test_input)
-        for count in range(0, len(basic_test_input)):
-            current_test = basic_test_input[count]
-            current_target = basic_test_output[count]
+        for count in range(0, len(advanced_test_input)):
+            current_test = advanced_test_input[count]
+            current_target = advanced_test_output[count]
+            print(current_test)
             with open(current_test, 'r') as file , open(current_target, 'r') as target:
                 rawData = json.load(file)
                 program = processData(rawData)
@@ -116,28 +117,3 @@ if __name__ == "__main__":
                     outfile.write("[NO] Test: " + current_test + "\n")
                     outfile.write(tabulate([outputedjson,targetedjson])+"\n")
 
-
-        # Then advanced Tests
-'''        for count in range(0, len(advanced_test_input)):
-            current_test = advanced_test_input[count]
-            current_target = advanced_test_output[count]
-            with open(current_test, 'r') as file:
-                rawData = json.load(file)
-                program = processData(rawData)
-
-                stack = State(program)
-                stack = stack.process_function_stack('main')
-
-                vulnerabilities = stack.vulns
-
-                outputdata = []
-                for vuln in vulnerabilities:
-                    outputdata.append(vuln.toJSON())
-
-                outputedjson = json.dumps(outputdata, indent='\t', separators=(',', ': '))
-
-                if outputedjson == current_target:
-                    outfile.write("[OK] Test: " + current_test + "\n")
-                else:
-                    outfile.write("[NO] Test: " + current_test + "\n")
-'''

@@ -26,17 +26,4 @@ def trans_addr(address):
         rel_addr = add[0]
     return hex(int(rel_addr,16))
 
-def test():
-    testData = ['public_tests/test01.json','public_tests/test02.json',
-                'public_tests/test03.json','public_tests/test04.json',
-                'public_tests/test05.json','public_tests/test11.json',
-                'public_tests/test12.json',
-                'public_tests/test13.json','public_tests/test14.json',
-                'public_tests/test15.json']
-    for test in testData:
-        print("Reading test data: " + test)
-        with open(test,'r') as file:
-            rawData =json.load(file)
-            #program = processData(rawData)
-
 
