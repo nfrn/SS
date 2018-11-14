@@ -68,7 +68,16 @@ class State:
             name = var.name
             size = var.bytes
             self.add_to_stack(type, name, addr, descr = type.upper() + " " + name, size=size)
-            
+    
+    def next_item_in_stack(self, address):
+        ordered = self.ordered()
+        for addr in ordered.keys():
+            if int(addr,16) <= int(address,16):
+                continue
+            break
+
+        return self.sub_stack[addr]
+
     def add_to_stack(self, type, name, addr, descr='', value='?', size = 8):
         # addrr already set in stack
         addr = trans_addr(addr)
@@ -107,7 +116,7 @@ class StackEntry(Variable):
         self.val = value
         self.descr = descr
 
-        self.write_size = 0
+        self.write_size = bytes
 
     def set_write_size(self, write_size, fnn, function_writing):
         self.write_size = write_size
