@@ -15,6 +15,7 @@ class State:
         #ordered with func args order
         #self.store_reg = ['RDI','RSI','RDX','RCX','R8','R9']
         self.store_reg = {'DI':0,'SI':0,'DX':0,'CX':0,'AX':0,'BX':0,'R8':0,'R9':0,'R10':0,'R11':0,'R12':0,'R13':0,'R14':0,'R15':0,'BP':0,'SP':0,'IP':0}
+        self.base_store_reg = self.store_reg.copy()
 
     def process_function_stack(self,function):
 
@@ -51,19 +52,20 @@ class State:
 
             #call
             if instruction.op == 'call':
-                print(instruction)
+                #print(instruction)
                 fun_name = instruction.args['fnname']
                 #print("==== before func call("+fun_name+") stack and reg====")aw
-                if fun_name in funDang.keys():
+                if fun_name in funDang.keys() or "__isoc99_" in fun_name:
                     Vulnerability.eval_function(self, fun_name, function, instruction.address)
 
                 elif fun_name in self.program.getFunctionNames():
-                    print(fun_name)
+                    #print(fun_name)
                     self.add_to_stack("POINTER", "ARGS FOR" + fun_name, self.addRelSubTOStatAdd("0x08"), descr="ARGS FOR" + fun_name)
                     self.process_function_stack(fun_name)
 
-
-
+                #after funccalls reset reg values to 0.
+                #this way we can know how many arguments each func has
+                self.store_reg = self.base_store_reg.copy()
 
         #print(self.store_reg)
         return self
@@ -82,7 +84,7 @@ class State:
         if lower_pointer != self.current_function_pointer:
             print("NEW POINTER" + lower_pointer)
             self.current_function_pointer = lower_pointer
-        print(self)
+        #print(self)
 
 
     
@@ -107,7 +109,7 @@ class State:
                     block_not_full_initialized = ((addr_number // 10) + 1) * 10
                     addres_block = '-0x' + str(block_not_full_initialized)
 
-                    print(addres_block)
+                    #print(addres_block)
                     self.sub_stack[addres_block] = StackEntry(size, type, 'block', addres_block, self, 'NI', "BLOCK INVALID")
             self.sub_stack[addr]= StackEntry(size, type, name, addr, self, value, descr)
 
@@ -127,15 +129,15 @@ class State:
 
 
     def addRelAddTOStatAdd(self,add):
-        print(":::::" + add)
+        #print(":::::" + add)
         newAdd = hex(int(add, 16) + int(self.current_function_pointer, 16))
-        print(":::::" + newAdd)
+        #print(":::::" + newAdd)
         return newAdd
 
     def addRelSubTOStatAdd(self,add):
-        print(":::::" + add)
+        #print(":::::" + add)
         newAdd = hex(int(add, 16) + int(self.current_function_pointer, 16))
-        print(":::::" + newAdd)
+        #print(":::::" + newAdd)
 
         lower_pointer = self.getLowerAdd(self.current_function_pointer, newAdd)
 
@@ -175,7 +177,7 @@ class StackEntry(Variable):
         self.val = value
         self.descr = descr
 
-        self.write_size = bytes
+        self.write_size = 0
 
     def set_write_size(self, write_size, fnn, function_writing,function_instr_address):
         self.write_size = write_size

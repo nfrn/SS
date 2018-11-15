@@ -1,4 +1,5 @@
 from Utils import trans_addr
+from Utils import funDang
 
 class Variable:
     def __init__(self, bytes, type, name, address):
@@ -25,10 +26,10 @@ class Instruction:
 
     def addArgument(self,key,value):
         if key == 'fnname':
-            if '@' not in value:
-                self.args[key] = value[1:-1]
+            if '@plt' not in value:
+                self.args[key] = value[1:-1] #function from program
             else:
-                self.args[key] = value[1:-5]
+                self.args[key] = value[1:-5] #builtin
         else:
             self.args[key]=value
 
@@ -71,8 +72,6 @@ class Program:
 
     def __str__(self):
         ret_str = "program\n"
-        ret_str += str(self.main)
-
         for func in self.functions:
             ret_str += str(func)
 
