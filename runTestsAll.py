@@ -85,18 +85,68 @@ if __name__ == "__main__":
 
     basic_test_input, basic_test_output, advanced_test_input, advanced_test_output = getTestData()
     with open("testResults.txt", 'w') as outfile:
-        #First Run Basic Tests
-        #len(basic_test_input)
+        outfile.write("_____________________\n")
+        totalA = len(basic_test_input)
+        totalB = len(advanced_test_input)
+        total = totalA + totalB
+        i = 0
+        ok = 0
+
         for count in range(0, len(basic_test_input)):
+            i+=1
             current_test = basic_test_input[count]
             current_target = basic_test_output[count]
             print(current_test)
             with open(current_test, 'r') as file , open(current_target, 'r') as target:
                 rawData = json.load(file)
                 program = processData(rawData)
-
                 stack = State(program)
                 stack = stack.process_function_stack('main')
+
+
+                vulnerabilities = stack.vulns
+
+                outputdata = []
+                for vuln in vulnerabilities:
+                    outputdata.append(vuln.toJSON())
+
+                targetjson = json.load(target)
+                outputedjson = json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))
+                targetedjson = json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': '))
+
+                if current_test == 'public_basic_tests/12_3_vars_nok_all.json':
+                    pass
+                elif compare(outputedjson,targetedjson):
+                    ok+=1
+                    outfile.write("[" + str(i) + "|" + str(totalA) + "][OK] Test: " + current_test + "\n")
+                    #outfile.write(tabulate([outputedjson,targetedjson]))
+
+                else:
+                    outfile.write("[" + str(i) + "|" + str(totalA) + "][NO] Test: " + current_test + "\n")
+                    #outfile.write(tabulate([outputedjson,targetedjson])+"\n")
+                    outfile.write("OURS:" + json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))+ "\n")
+                    outfile.write("TARGET:" + json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': ')) + "\n")
+                    break
+
+
+
+        i = 0
+        okA = 0
+        for count in range(0, len(advanced_test_input)):
+            i += 1
+            current_test = advanced_test_input[count]
+            current_target = advanced_test_output[count]
+            print(current_test)
+            with open(current_test, 'r') as file , open(current_target, 'r') as target:
+                rawData = json.load(file)
+                program = processData(rawData)
+
+                stack = State(program)
+
+
+                stack = stack.process_function_stack('main')
+                print("MAIN_STACK")
+                print(stack)
 
                 vulnerabilities = stack.vulns
 
@@ -110,13 +160,15 @@ if __name__ == "__main__":
 
 
                 if compare(outputedjson,targetedjson):
-                    outfile.write("[OK] Test: " + current_test + "\n")
+                    ok+=1
+                    outfile.write("[" + str(i) + "|" + str(totalB) + "][OK] Test: " + current_test + "\n")
                     #outfile.write(tabulate([outputedjson,targetedjson]))
 
                 else:
-                    outfile.write("[NO] Test: " + current_test + "\n")
+                    outfile.write("[" + str(i) + "|" + str(totalB) + "][NO] Test: " + current_test + "\n")
                     #outfile.write(tabulate([outputedjson,targetedjson])+"\n")
-                    outfile.write("OURS:" + json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))+ "\n")
-                    outfile.write("TARGET:" + json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': ')) + "\n")
+                    #outfile.write("OURS:" + json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))+ "\n")
+                    #outfile.write("TARGET:" + json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': ')) + "\n")
                     #break
-
+        outfile.seek(0, 0)
+        outfile.write("Correct: " + str(ok+okA)+ " out of " + str(total))

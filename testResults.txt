@@ -1,61 +1,27 @@
-[OK] Test: public_basic_tests/01_gets_all.json
-[OK] Test: public_basic_tests/02_fgets_strcpy_ok.json
-[OK] Test: public_basic_tests/03_fgets_strcpy_nok_varoverflow.json
-[OK] Test: public_basic_tests/04_fgets_strcpy_nok_rbpoverflow.json
-[OK] Test: public_basic_tests/05_fgets_strcpy_nok_retoverflow.json
-[OK] Test: public_basic_tests/06_fgets_strncpy_ok.json
-[OK] Test: public_basic_tests/07_fgets_strncpy_varoverflow.json
-[OK] Test: public_basic_tests/08_fgets_strcat_ok.json
-[OK] Test: public_basic_tests/09_fgets_strncat_ok.json
-[OK] Test: public_basic_tests/10_fgets_strcat_all.json
-[OK] Test: public_basic_tests/11_3_vars_ok.json
-[NO] Test: public_basic_tests/12_3_vars_nok_all.json
-OURS:[
-	{
-		"address": "400627",
-		"fnname": "strcpy",
-		"overflow_var": "buf4",
-		"vuln_function": "main",
-		"vulnerability": "RBPOVERFLOW"
-	},
-	{
-		"address": "400627",
-		"fnname": "strcpy",
-		"overflow_var": "buf4",
-		"vuln_function": "main",
-		"vulnerability": "RETOVERFLOW"
-	},
-	{
-		"address": "400627",
-		"fnname": "strcpy",
-		"overflow_var": "buf4",
-		"overflown_address": "rbp+0x10",
-		"vuln_function": "main",
-		"vulnerability": "SCORRUPTION"
-	}
-]
-TARGET:[
-	{
-		"address": "4005ad",
-		"fnname": "strcpy",
-		"overflow_var": "buf4",
-		"vuln_function": "main",
-		"vulnerability": "RBPOVERFLOW"
-	},
-	{
-		"address": "4005ad",
-		"fnname": "strcpy",
-		"overflow_var": "buf4",
-		"vuln_function": "main",
-		"vulnerability": "RETOVERFLOW"
-	},
-	{
-		"address": "4005ad",
-		"fnname": "strcpy",
-		"overflow_var": "buf4",
-		"overflown_address": "rbp+0x10",
-		"vuln_function": "main",
-		"vulnerability": "SCORRUPTION"
-	}
-]
-[OK] Test: public_basic_tests/13_multiple_overflows.json
+Correct: 19 out of 27
+[1|13][OK] Test: public_basic_tests/01_gets_all.json
+[2|13][OK] Test: public_basic_tests/02_fgets_strcpy_ok.json
+[3|13][OK] Test: public_basic_tests/03_fgets_strcpy_nok_varoverflow.json
+[4|13][OK] Test: public_basic_tests/04_fgets_strcpy_nok_rbpoverflow.json
+[5|13][OK] Test: public_basic_tests/05_fgets_strcpy_nok_retoverflow.json
+[6|13][OK] Test: public_basic_tests/06_fgets_strncpy_ok.json
+[7|13][OK] Test: public_basic_tests/07_fgets_strncpy_varoverflow.json
+[8|13][OK] Test: public_basic_tests/08_fgets_strcat_ok.json
+[9|13][OK] Test: public_basic_tests/09_fgets_strncat_ok.json
+[10|13][OK] Test: public_basic_tests/10_fgets_strcat_all.json
+[11|13][OK] Test: public_basic_tests/11_3_vars_ok.json
+[13|13][OK] Test: public_basic_tests/13_multiple_overflows.json
+[1|14][OK] Test: public_advanced_tests/21_fgets_strcpy_nok_invalidaccs.json
+[2|14][OK] Test: public_advanced_tests/23_fgets_fun_main_nok.json
+[3|14][OK] Test: public_advanced_tests/24_fgets_fun_ok.json
+[4|14][NO] Test: public_advanced_tests/25_fgets_fun_rbpoverflow.json
+[5|14][NO] Test: public_advanced_tests/26_fgets_fun_retoverflow.json
+[6|14][NO] Test: public_advanced_tests/27_fgets_fun_stack.json
+[7|14][NO] Test: public_advanced_tests/28_scanf_nok.json
+[8|14][NO] Test: public_advanced_tests/29_fscanf_nok.json
+[9|14][OK] Test: public_advanced_tests/30_fgets_sprintf_ok.json
+[10|14][OK] Test: public_advanced_tests/31_fgets_snprintf_ok.json
+[11|14][OK] Test: public_advanced_tests/32_read_nok.json
+[12|14][NO] Test: public_advanced_tests/33_fgets_strcpy_direct_access_ok.json
+[13|14][NO] Test: public_advanced_tests/34_fgets_direct_access_invalidacc.json
+[14|14][OK] Test: public_advanced_tests/35_fgets_direct_access_ok.json

@@ -25,7 +25,10 @@ class Instruction:
 
     def addArgument(self,key,value):
         if key == 'fnname':
-            self.args[key] = value[1:-5]
+            if '@' not in value:
+                self.args[key] = value[1:-1]
+            else:
+                self.args[key] = value[1:-5]
         else:
             self.args[key]=value
 
@@ -54,17 +57,23 @@ class Function():
 
 class Program:
     def __init__(self,main):
-        self.main = main
-        self.extra_functions = []
+        self.functions = {}
+        self.functions[main.name] = main
 
     def addFunction(self,function):
-        self.extra_functions.append(function)
+        self.functions[function.name] = function
+
+    def getFunctionNames(self):
+        names = []
+        for function in self.functions.keys():
+            names.append(function)
+        return names
 
     def __str__(self):
         ret_str = "program\n"
         ret_str += str(self.main)
 
-        for func in self.extra_functions:
+        for func in self.functions:
             ret_str += str(func)
 
         return ret_str
