@@ -12,6 +12,7 @@ class State:
         self.current_function_pointer = '0x0'
         self.lower_pointer = '0x0'
 
+        self.eq_flag = False
         #self.store_reg = ['RDI','RSI','RDX','RCX','R8','R9']
         self.store_reg = {'DI':"0x0",'SI':"0x0",'DX':"0x0",'CX':"0x0",'AX':"0x0",'BX':"0x0",'R8':"0x0",'R9':"0x0",'R10':"0x0",'R11':"0x0",'R12':"0x0",'R13':"0x0",'R14':"0x0",'R15':"0x0",'BP':"0x0",'SP':"0x0",'IP':"0x0"}
         self.base_store_reg = self.store_reg.copy()
@@ -24,7 +25,18 @@ class State:
 
         ##set loval vars in stack
         self.set_local_vars(self.program, function)
+
+        jmp_addr = self.iterate_instructions(function)
+        while jmp_addr != "" :
+            jmp_addr = self.iterate_instructions(function ,jmp_addr)
+
+        return self
+
+    def iterate_instructions(self, function, start_addr=""):
+        jmp_addr = ""
         for instruction in self.program.functions[function].instructions:
+            if start_addr !="" and int(instruction.address,16) < int(start_addr,16):
+                continue
             self.store_reg["IP"] = instruction.address
 
             #mov / lea
@@ -66,9 +78,8 @@ class State:
                 else:
                     self.store_reg[dest_reg.upper()[1:]] = hex(int(self.store_reg[dest_reg.upper()[1:]], 16) - int(val, 16))
 
-
             elif instruction.op == "nop":
-                pass
+                continue
 
             elif instruction.op == "leave" or instruction.op == "ret":
                 break #this works because we are processing function calls "recursively"
@@ -86,7 +97,32 @@ class State:
                     self.process_function_stack(fun_name)
                 self.store_reg = self.base_store_reg.copy()
 
-        return self
+            elif instruction.op == "cmp":
+                arg0 = instruction.args["arg0"] #val in addr
+                arg1 = instruction.args["arg1"] #should always be addr?
+
+                token = arg0.split(' ')
+                if token[0] in memAlloc.keys() and token[1] == 'PTR':
+                    addr0 = trans_addr(token[2][1:-1])
+
+                self.eq_flag = (self.sub_stack[addr0].val == arg1)
+
+            elif instruction.op == "test":
+                pass
+
+            elif instruction.op == "je" or instruction.op == "jne":
+                if self.eq_flag and instruction.op == "je":
+                    jmp_addr = instruction.args["address"]
+                    break
+                elif not self.eq_flag and instruction.op == "jne":
+                    jmp_addr = instruction.args["address"]
+                    break
+
+            elif instruction.op == "jmp":
+                jmp_addr = instruction.args["address"]
+                break
+
+        return jmp_addr
 
     def set_local_vars(self, program, function):
         self.lower_pointer = self.current_function_pointer
