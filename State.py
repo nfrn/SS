@@ -19,7 +19,6 @@ class State:
         self.base_store_reg = self.store_reg.copy()
 
     def process_function_stack(self,function):
-
         if function == 'main':
             self.add_to_stack("POINTER", "STK", "0x10", descr='Other Stack Frame', value="STK")
             self.add_to_stack("POINTER", "RET", "0x08", descr='Return Address')
@@ -29,6 +28,7 @@ class State:
 
         self.set_local_vars(self.program, function)
         for instruction in self.program.functions[function].instructions:
+            self.store_reg["IP"] = instruction.address
             #if instruction.pos==2 and instruction.op == 'sub' and instruction.args['dest']=='rsp':
                 #addr = 'rbp-'+ trans_addr(str(instruction.args['value'] + "[INFO]"))
                 #self.add_to_stack(addr,descr = "Main function Stack Delimiter")
@@ -53,7 +53,7 @@ class State:
                     dest_addr = trans_addr(token[2][1:-1])
                     char = instruction.args['value']
                     print("Directly setting in buffer @" + dest_addr, "val:", char)
-                    Vulnerability.eval_direct_write(self, instruction.op, dest_addr, char, function, instruction.address)
+                    Vulnerability.eval_direct_write(self, instruction.op, dest_addr, char, function)
 
                 #set val to var
                 elif token[0] in memAlloc.keys() and token[1] == 'PTR':
@@ -89,7 +89,7 @@ class State:
                 fun_name = instruction.args['fnname']
                 #print("==== before func call("+fun_name+") stack and reg====")aw
                 if fun_name in funDang.keys() or "__isoc99_" in fun_name:
-                    Vulnerability.eval_function(self, fun_name, function, instruction.address)
+                    Vulnerability.eval_function(self, fun_name, function)
 
                 elif fun_name in self.program.getFunctionNames():
 
