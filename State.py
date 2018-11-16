@@ -15,7 +15,7 @@ class State:
         
         #ordered with func args order
         #self.store_reg = ['RDI','RSI','RDX','RCX','R8','R9']
-        self.store_reg = {'DI':0,'SI':0,'DX':0,'CX':0,'AX':0,'BX':0,'R8':0,'R9':0,'R10':0,'R11':0,'R12':0,'R13':0,'R14':0,'R15':0,'BP':0,'SP':0,'IP':0}
+        self.store_reg = {'DI':"0x0",'SI':"0x0",'DX':"0x0",'CX':"0x0",'AX':"0x0",'BX':"0x0",'R8':"0x0",'R9':"0x0",'R10':"0x0",'R11':"0x0",'R12':"0x0",'R13':"0x0",'R14':"0x0",'R15':"0x0",'BP':"0x0",'SP':"0x0",'IP':"0x0"}
         self.base_store_reg = self.store_reg.copy()
 
     def process_function_stack(self,function):
@@ -60,8 +60,31 @@ class State:
                     addr = trans_addr(token[2][1:-1])
                     self.add_to_stack( "","", addr, value=instruction.args['value'])
 
+            elif instruction.op == "add" or instruction.op == "sub":
+                dest_reg = instruction.args['dest']
+
+                val = instruction.args['value']
+
+                print(self.store_reg[dest_reg.upper()[1:]])
+                print(int(self.store_reg[dest_reg.upper()[1:]],16))
+                #reading from reg
+                if val.upper()[1:] in self.store_reg.keys():
+                    val = self.store_reg[val.upper()[1:]]
+
+                if instruction.op == "add":
+                    self.store_reg[dest_reg.upper()[1:]] = hex(int(self.store_reg[dest_reg.upper()[1:]], 16) + int(val, 16))
+                else:
+                    self.store_reg[dest_reg.upper()[1:]] = hex(int(self.store_reg[dest_reg.upper()[1:]], 16) - int(val, 16))
+
+
+            elif instruction.op == "nop":
+                pass
+
+            elif instruction.op == "leave" or instruction.op == "ret":
+                break #this works because we are processing function calls "recursively"
+
             #call
-            if instruction.op == 'call':
+            elif instruction.op == 'call':
                 print(instruction)
                 fun_name = instruction.args['fnname']
                 #print("==== before func call("+fun_name+") stack and reg====")aw

@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from Program import *
 from State import *
 from Vulnerability import *
@@ -40,27 +41,21 @@ def processData(rawData):
 
 
 if __name__ == "__main__":
-    test = '12_3_vars_nok_all'
+    filename = sys.argv[1]
+    print(filename)
 
-    with open('public_basic_tests/'+ test + '.json', 'r') as file:
+    with open(filename, 'r') as file:
         rawData = json.load(file)
         program = processData(rawData)
 
         stack = State(program)
         stack = stack.process_function_stack('main')
 
-        #vulnerabilities = checkVulnerability(stack)
         vulnerabilities = stack.vulns
         outputdata = []
         for vuln in vulnerabilities:
             outputdata.append(vuln.toJSON())
 
-        test_dir = "prog_outs"
-        if not os.path.exists(test_dir):
-            os.mkdir(test_dir)
-
-        #write to folder 'test' then compare ourselves
-        out_file = test_dir + '/'+ test +'.output.json'
+        out_file = filename[:-5] + '.output.json'
         with open(out_file, 'w') as outfile:
-            print("\ndumping output to: \'" + out_file + "\'")
             json.dump(outputdata, outfile, indent='\t', separators=(',', ': '))
