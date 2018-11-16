@@ -8,6 +8,14 @@ funDang = {'gets': 1, 'strcpy': 2, 'strcat':2, 'sprintf': 2, 'scanf':1, 'fscanf'
 memAlloc = {'BYTE': 1,'WORD':2, 'DWORD':4,'QWORD':8}
 arg_reg_order = ['RDI','RSI','RDX','RCX','R8','R9']
 
+TYPE_BUFFER = "buffer"
+TYPE_INT = "int"
+TYPE_DOUBLE = "double"
+TYPE_FLOAT = "float"
+
+INTEGER_TYPES = [TYPE_INT ,TYPE_DOUBLE ,TYPE_FLOAT ]
+VAR_TYPES = [TYPE_BUFFER, TYPE_INT ,TYPE_DOUBLE ,TYPE_FLOAT ]
+
 
 
 def sum_str_hexes(str1 ,str2):

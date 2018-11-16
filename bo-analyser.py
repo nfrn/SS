@@ -41,8 +41,15 @@ def processData(rawData):
 
 
 if __name__ == "__main__":
+    if len(sys.argv <=1):
+        print("please provide a file as input")
+        sys.exit()
+    elif len(sys.argv >=3):
+        print("please provide only one arg (filepath)")
+        sys.exit()
+
     filename = sys.argv[1]
-    print(filename)
+    print("Evaluating:", filename)
 
     with open(filename, 'r') as file:
         rawData = json.load(file)
@@ -58,4 +65,5 @@ if __name__ == "__main__":
 
         out_file = filename[:-5] + '.output.json'
         with open(out_file, 'w') as outfile:
+            print("writing output to:", outfile)
             json.dump(outputdata, outfile, indent='\t', separators=(',', ': '))
