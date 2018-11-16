@@ -227,9 +227,9 @@ class StackEntry(Variable):
 
         self.write_size = 0
 
-    def set_write_size(self, write_size, fnn, function_writing,function_instr_address):
+    def set_write_size(self, write_size, fnn, function_writing):
         self.write_size = write_size
-        Vulnerability.check_write(self, write_size, fnn, function_writing,function_instr_address)
+        Vulnerability.check_write(self, write_size, fnn, function_writing)
 
     def __str__(self):
         return self.val + " | " + self.descr  + " | " + str(self.bytes)  + " | " + str(self.write_size)
