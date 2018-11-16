@@ -41,10 +41,10 @@ def processData(rawData):
 
 
 if __name__ == "__main__":
-    if len(sys.argv <=1):
+    if len(sys.argv) <=1:
         print("please provide a file as input")
         sys.exit()
-    elif len(sys.argv >=3):
+    elif len(sys.argv) >=3:
         print("please provide only one arg (filepath)")
         sys.exit()
 
@@ -64,6 +64,6 @@ if __name__ == "__main__":
             outputdata.append(vuln.toJSON())
 
         out_file = filename[:-5] + '.output.json'
+        print("writing output to:", out_file)
         with open(out_file, 'w') as outfile:
-            print("writing output to:", outfile)
             json.dump(outputdata, outfile, indent='\t', separators=(',', ': '))
