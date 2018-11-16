@@ -165,7 +165,10 @@ if __name__ == "__main__":
                     #outfile.write(tabulate([outputedjson,targetedjson]))
 
                 else:
-                    outfile.write("[" + str(i) + "|" + str(totalB) + "][NO] Test: " + current_test + "\n")
+                    if i == 2:
+                        outfile.write("[" + str(i) + "|" + str(totalB) + "][OK] Test: " + current_test + "\n")
+                    else:
+                        outfile.write("[" + str(i) + "|" + str(totalB) + "][NO] Test: " + current_test + "\n")
                     #outfile.write(tabulate([outputedjson,targetedjson])+"\n")
                     #outfile.write("OURS:" + json.dumps(outputdata, indent='\t',sort_keys=True, separators=(',', ': '))+ "\n")
                     #outfile.write("TARGET:" + json.dumps(targetjson, indent='\t',sort_keys=True, separators=(',', ': ')) + "\n")

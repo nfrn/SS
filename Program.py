@@ -27,9 +27,9 @@ class Instruction:
     def addArgument(self,key,value):
         if key == 'fnname':
             if '@plt' not in value:
-                self.args[key] = value[1:-1] #function from program
+                self.args[key] = value[1:-1]  # function from program
             else:
-                self.args[key] = value[1:-5] #builtin
+                self.args[key] = value[1:-5]  # builtin
         else:
             self.args[key]=value
 

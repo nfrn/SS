@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
         i = 0
         okA = 0
-        for count in range(3, 4):
+        for count in range(5, 6):
             i += 1
             current_test = advanced_test_input[count]
             current_target = advanced_test_output[count]
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
 
                 stack = stack.process_function_stack('main')
-                print("MAIN_STACK")
+                print("FINAL_STACK")
                 print(stack)
 
                 vulnerabilities = stack.vulns

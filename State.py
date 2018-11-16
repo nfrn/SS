@@ -10,6 +10,7 @@ class State:
         self.sub_stack={}
         self.vulns = []
         self.current_function_pointer = '0x0'
+        self.lower_pointer = '0x0'
         #self.store_reg = {'AX':0,'BX':0,'CX':0, 'DX':0,'DI':0,'SI':0,'R8':0,'R9':0,'R10':0,'R11':0,'R12':0,'R13':0,'R14':0,'R15':0,'BP':0,'SP':0,'IP':0}
         
         #ordered with func args order
@@ -19,9 +20,11 @@ class State:
 
     def process_function_stack(self,function):
 
-        self.add_to_stack("POINTER", "STK", str(self.addRelAddTOStatAdd("0x10")), descr='Other Stack Frame', value="STK")
-        self.add_to_stack("POINTER","RET", str(self.addRelAddTOStatAdd("0x08")), descr='Return Address')
-        self.add_to_stack("POINTER","RBP", str(self.addRelAddTOStatAdd("0x00")), descr='Base Pointer')
+        if function == 'main':
+            self.add_to_stack("POINTER", "STK", "0x10", descr='Other Stack Frame', value="STK")
+            self.add_to_stack("POINTER", "RET", "0x08", descr='Return Address')
+            self.add_to_stack("POINTER", "RBP", "0x00", descr='Base Pointer')
+
         ##set loval vars in stack
 
         self.set_local_vars(self.program, function)
@@ -45,12 +48,13 @@ class State:
                         # If V->R, no need
                         self.store_reg[dest_reg] = instruction.args['value']
 
-                #set char to buff
+                # set char to buff
                 elif token[0] == "BYTE" and token[1] == 'PTR':
                     dest_addr = trans_addr(token[2][1:-1])
                     char = instruction.args['value']
-                    print("Directly setting in buffer @" + dest_addr, "val:",char)
-                    Vulnerability.eval_direct_write(self,instruction.op, dest_addr, char, function, instruction.address)
+                    print("Directly setting in buffer @" + dest_addr, "val:", char)
+                    Vulnerability.eval_direct_write(self, instruction.op, dest_addr, char, function, instruction.address)
+
                 #set val to var
                 elif token[0] in memAlloc.keys() and token[1] == 'PTR':
                     addr = trans_addr(token[2][1:-1])
@@ -58,39 +62,39 @@ class State:
 
             #call
             if instruction.op == 'call':
-                #print(instruction)
+                print(instruction)
                 fun_name = instruction.args['fnname']
                 #print("==== before func call("+fun_name+") stack and reg====")aw
                 if fun_name in funDang.keys() or "__isoc99_" in fun_name:
                     Vulnerability.eval_function(self, fun_name, function, instruction.address)
 
                 elif fun_name in self.program.getFunctionNames():
-                    #print(fun_name)
-                    self.add_to_stack("POINTER", "ARGS FOR" + fun_name, self.addRelSubTOStatAdd("0x08"), descr="ARGS FOR" + fun_name)
-                    self.process_function_stack(fun_name)
 
-                #after funccalls reset reg values to 0.
-                #this way we can know how many arguments each func has
+                    if self.lower_pointer != self.current_function_pointer:
+                        print("NEW POINTER" + self.lower_pointer)
+                        self.addRET_EBP(self.lower_pointer)
+                        print(self)
+                    self.process_function_stack(fun_name)
                 self.store_reg = self.base_store_reg.copy()
+
+
+
 
         #print(self.store_reg)
         return self
 
     def set_local_vars(self, program, function):
-        lower_pointer = self.current_function_pointer
+        print("ADD VARS OF FUNCTION: " + function)
+        self.lower_pointer = self.current_function_pointer
         if function in program.getFunctionNames():
             for var in program.functions[function].variables:
                 addr = self.addRelAddTOStatAdd(var.address)
-                lower_pointer = self.getLowerAdd(lower_pointer,addr)
+                print("VAR: " + var.name + "| ADD_" + addr)
+                self.lower_pointer = self.getLowerAdd(self.lower_pointer,addr)
                 type = var.type
                 name = var.name
                 size = var.bytes
                 self.add_to_stack(type, name, addr, descr = type.upper() + " " + name, size=size)
-
-        if lower_pointer != self.current_function_pointer:
-            print("NEW POINTER" + lower_pointer)
-            self.current_function_pointer = lower_pointer
-        #print(self)
 
 
     
@@ -109,13 +113,13 @@ class State:
         if(addr in self.sub_stack.keys()):
             self.sub_stack[addr].val = value
         else:
-            if addr[0] == '-':
+            if descr != "Return Address" and descr != "Function Args" and addr[0] == '-':
                 addr_number = int(addr.split("x",1)[1],16)
-                if addr_number % 16 != 0:
+                if addr_number % 8 != 0:
                     block_not_full_initialized = ((addr_number // 10) + 1) * 10
                     addres_block = '-0x' + str(block_not_full_initialized)
 
-                    #print(addres_block)
+                    print("ERROR: "+ name)
                     self.sub_stack[addres_block] = StackEntry(size, type, 'block', addres_block, self, 'NI', "BLOCK INVALID")
             self.sub_stack[addr]= StackEntry(size, type, name, addr, self, value, descr)
 
@@ -136,33 +140,35 @@ class State:
 
     def addRelAddTOStatAdd(self,add):
         #print(":::::" + add)
-        newAdd = hex(int(add, 16) + int(self.current_function_pointer, 16))
+        newAdd = hex(int(self.current_function_pointer, 16) - abs(int(add, 16)))
         #print(":::::" + newAdd)
         return newAdd
 
-    def addRelSubTOStatAdd(self,add):
-        #print(":::::" + add)
-        newAdd = hex(int(add, 16) + int(self.current_function_pointer, 16))
-        #print(":::::" + newAdd)
+    def addRET_EBP(self,add):
+        print('addRET_EBP')
 
-        lower_pointer = self.getLowerAdd(self.current_function_pointer, newAdd)
+        newAdd = hex(int(add, 16) - 8)
+        self.add_to_stack("POINTER","ARGS", str(newAdd), descr='Function Args')
 
-        if lower_pointer != self.current_function_pointer:
-            print("NEW POINTER" + lower_pointer)
-            self.current_function_pointer = lower_pointer
+        newAdd = hex(int(add, 16) - 16 )
+        self.add_to_stack("POINTER", "RET", str(newAdd), descr='Return Address')
 
-        return newAdd
+        newAdd = hex(int(add, 16) - 24)
+        self.add_to_stack("POINTER", "RBP", newAdd, descr='Base Pointer')
+
+        self.current_function_pointer = newAdd
 
     def get_entry_of_addr(self, addr):
         ordered_keys = list(self.ordered().keys())
-
         previous_addr = ordered_keys[0]
+
         for entry_addr in ordered_keys:
             if entry_addr < addr:
                 previous_addr = entry_addr
                 continue
             else:
                 return previous_addr, self.sub_stack[previous_addr]
+
 
     def getLowerAdd(self,add1,add2):
         if add1[0] == add2[0] == '-':
@@ -182,6 +188,8 @@ class State:
                 return add1
             else:
                 return add2
+
+
 
 
 
