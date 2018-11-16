@@ -45,6 +45,12 @@ class State:
                         # If V->R, no need
                         self.store_reg[dest_reg] = instruction.args['value']
 
+                #set char to buff
+                elif token[0] == "BYTE" and token[1] == 'PTR':
+                    dest_addr = trans_addr(token[2][1:-1])
+                    char = instruction.args['value']
+                    print("Directly setting in buffer @" + dest_addr, "val:",char)
+                    Vulnerability.eval_direct_write(self,instruction.op, dest_addr, char, function, instruction.address)
                 #set val to var
                 elif token[0] in memAlloc.keys() and token[1] == 'PTR':
                     addr = trans_addr(token[2][1:-1])
@@ -146,6 +152,17 @@ class State:
             self.current_function_pointer = lower_pointer
 
         return newAdd
+
+    def get_entry_of_addr(self, addr):
+        ordered_keys = list(self.ordered().keys())
+
+        previous_addr = ordered_keys[0]
+        for entry_addr in ordered_keys:
+            if entry_addr < addr:
+                previous_addr = entry_addr
+                continue
+            else:
+                return previous_addr, self.sub_stack[previous_addr]
 
     def getLowerAdd(self,add1,add2):
         if add1[0] == add2[0] == '-':
